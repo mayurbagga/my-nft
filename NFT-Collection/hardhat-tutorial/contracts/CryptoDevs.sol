@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IWhitelist.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
 
 
 
@@ -16,7 +16,7 @@ contract CryptoDevs is ERC721Enumerable, Ownable {
     string _baseTokenURI;
 
     //  _price is the price of one Crypto Dev NFT
-    uint256 public _price = 0.01 ether;
+    uint256 public _price = 0.000000000000000001 ether;
 
     // _paused is used to pause the contract in case of an emergency
     bool public _paused;
@@ -104,12 +104,12 @@ contract CryptoDevs is ERC721Enumerable, Ownable {
     //     _burn(tokenId);
     // }
 
-    function burn(uint256 tokenId) public {
-        require(_exists(tokenId), "ERC721: token does not exist");
-        address owner = ownerOf(tokenId);
-        require(owner == msg.sender || isApprovedForAll(owner, msg.sender), "ERC721: caller is not owner nor approved");
-        _burn(tokenId);
-    }
+    // function burn(uint256 tokenId) public {
+    //     require(_exists(tokenId), "ERC721: token does not exist");
+    //     address owner = ownerOf(tokenId);
+    //     require(owner == msg.sender || isApprovedForAll(owner, msg.sender), "ERC721: caller is not owner nor approved");
+    //     _burn(tokenId);
+    // }
 
     /**
     * @dev _baseURI overides the Openzeppelin's ERC721 implementation which by default

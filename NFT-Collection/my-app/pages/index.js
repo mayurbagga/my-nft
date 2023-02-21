@@ -24,10 +24,12 @@ export default function Home() {
   const web3ModalRef = useRef();
 
   const [nftContract, setNFTContract] = useState();
-  const [nftTokenId, setNFTTokenId] = useState(0);
-  const [nftTokenURI, setNFTTokenURI] = useState("");
-  const [nftRecipient, setNFTRecipient] = useState("");
-  const [burnAddress, setBurnAddress] = useState("");
+  const [ nftTokenId, setNFTTokenId ] = useState( 0 );
+  const [toAddress, setToAddress] = useState(0);
+
+  // const [nftTokenURI, setNFTTokenURI] = useState("");
+  // const [nftRecipient, setNFTRecipient] = useState("");
+  // const [burnAddress, setBurnAddress] = useState("");
 
 
   
@@ -77,7 +79,7 @@ export default function Home() {
       const tx = await nftContract.mint({
         // value signifies the cost of one crypto dev which is "0.01" eth.
         // We are parsing `0.01` string to ether using the utils library from ethers.js
-        value: utils.parseEther("0.0000000001"),
+        value: utils.parseEther("0.000000000000000001"),
       });
       setLoading(true);
       // wait for the transaction to get mined
@@ -101,20 +103,65 @@ export default function Home() {
       // call the mint from the contract to mint the Crypto Devx
       console.log("entered nft token id is"+ nftTokenId )
             
-      //const tx2 = await nftContract.approve( NFT_CONTRACT_ADDRESS,nftTokenId );
+      const tx = await nftContract.approve( NFT_CONTRACT_ADDRESS,nftTokenId );
 
-      const tx = await nftContract.burn(nftTokenId);
+      const tx2 = await nftContract.burn(nftTokenId);
       setLoading(true);
       // wait for the transaction to get mined
       await tx.wait();
+      await tx2.wait();
+      setLoading(false);
+      window.alert("You successfully burned a Crypto Dev! NFT");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const getCurrentuserAddress = async() => {
+    
+     try {
+      // We need a Signer here since this is a 'write' transaction.
+      const signer = await getProviderOrSigner(true);
+      // Create a new instance of the Contract with a Signer, which allows
+      // update methods
+     // console.warn(abi.abi)
+       const nftContract = new Contract( NFT_CONTRACT_ADDRESS, abi.abi, signer );
+       console.log(signer.address)
+      
+    } catch (err) {
+      console.error(err);
+    }
+
+  }
+
+const publicTransfer = async () => {
+    try {
+      // We need a Signer here since this is a 'write' transaction.
+      const signer = await getProviderOrSigner(true);
+      // Create a new instance of the Contract with a Signer, which allows
+      // update methods
+     // console.warn(abi.abi)
+      console.log( await signer.getAddress() )
+      const fromAddress = await signer.getAddress()
+      const nftContract = new Contract(NFT_CONTRACT_ADDRESS, abi.abi, signer);
+      // call the mint from the contract to mint the Crypto Devx
+
+      console.log("entered nft token id is"+ nftTokenId )
+            
+      const tx = await nftContract.approve( NFT_CONTRACT_ADDRESS,nftTokenId );
+      const tx2 = await nftContract.transferFrom(fromAddress, toAddress, nftTokenId )
+      // console.log(await nftContract.provider.getSigner().getAddress())
+
+      setLoading(true);
+      // wait for the transaction to get mined
+      await tx.wait();
+      await tx2.wait();
       setLoading(false);
       window.alert("You successfully minted a Crypto Dev!");
     } catch (err) {
       console.error(err);
     }
   };
-
-
 
   /*
       connectWallet: Connects the MetaMask wallet
@@ -420,15 +467,38 @@ export default function Home() {
           <div>
             <h1>
               <br></br>
-              Burn Token!
+              Burn NFT!
               <br></br>
               <br></br>
             </h1>
           
             <div>
-              <input placeholder="Enter Token ID" className={ styles.button } type="text"  onChange={ ( e ) => setNFTTokenId( e.target.value ) }   />
+              <input placeholder="Enter Token ID" className={ styles.inputbox } type="number"  onChange={ ( e ) => setNFTTokenId( e.target.value ) }   />
               &nbsp;
                <button className={styles.button} onClick={publicBurn}>Burn NFT</button>
+            </div>
+         
+        </div>
+
+          
+          {/* transfer form */ }
+          
+          <div>
+            <h1>
+              <br></br>
+              Transfer NFT!
+              <br></br>
+              <br></br>
+            </h1>
+          
+            <div>
+              <input placeholder="Enter Address of reciever" className={ styles.inputbox } type="text"  onChange={ ( e ) => setToAddress( e.target.value ) }   />
+              &nbsp;
+              <input placeholder="Enter Token ID" className={ styles.inputbox } type="text"  onChange={ ( e ) => setNFTTokenId( e.target.value ) }   />
+              &nbsp;
+              <button className={ styles.button } onClick={ publicTransfer }>Transfer NFT</button>
+              {/* <button className={ styles.button } onClick={ getCurrentuserAddress }>see addres</button> */}
+              
             </div>
          
         </div>
