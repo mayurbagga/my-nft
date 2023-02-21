@@ -4,6 +4,9 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IWhitelist.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
+
 
 contract CryptoDevs is ERC721Enumerable, Ownable {
     /**
@@ -85,6 +88,29 @@ contract CryptoDevs is ERC721Enumerable, Ownable {
         _safeMint(msg.sender, tokenIds);
     }
 
+
+    // event NFTBurned(uint256 tokenId, address owner, address burnAddress);
+
+    // function burnNFT(uint256 tokenId) public {
+    //     require(_exists(tokenId), "Token does not exist");
+    //     require(ownerOf(tokenId) == msg.sender, "Caller is not the owner of the token");
+
+    //     _transfer(msg.sender, address(0), tokenId);
+    //     emit NFTBurned(tokenId, msg.sender, address(0));
+    // }
+    // function burn(uint256 tokenId) public {
+    //     address owner = ownerOf(tokenId);
+    //     require(_isApprovedOrOwner(msg.sender, tokenId), "ERC721: burn caller is not owner nor approved");
+    //     _burn(tokenId);
+    // }
+
+    function burn(uint256 tokenId) public {
+        require(_exists(tokenId), "ERC721: token does not exist");
+        address owner = ownerOf(tokenId);
+        require(owner == msg.sender || isApprovedForAll(owner, msg.sender), "ERC721: caller is not owner nor approved");
+        _burn(tokenId);
+    }
+
     /**
     * @dev _baseURI overides the Openzeppelin's ERC721 implementation which by default
     * returned an empty string for the baseURI
@@ -110,6 +136,8 @@ contract CryptoDevs is ERC721Enumerable, Ownable {
         (bool sent, ) =  _owner.call{value: amount}("");
         require(sent, "Failed to send Ether");
     }
+
+
 
       // Function to receive Ether. msg.data must be empty
     receive() external payable {}

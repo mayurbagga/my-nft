@@ -12,7 +12,8 @@ async function main() {
   so cryptoDevsContract here is a factory for instances of our CryptoDevs contract.
   */
   const cryptoDevsContract = await ethers.getContractFactory("CryptoDevs");
-
+  const contractBalance = await ethers.provider.getBalance("0x20613aBe93e4611Cf547b4395E4248c6129c8697")
+  console.log(contractBalance)
   // deploy the contract
   const deployedCryptoDevsContract = await cryptoDevsContract.deploy(
     metadataURL,

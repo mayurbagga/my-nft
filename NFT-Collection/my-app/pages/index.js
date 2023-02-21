@@ -5,6 +5,8 @@ import Web3Modal from "web3modal";
 import { abi, NFT_CONTRACT_ADDRESS } from "../constants";
 import styles from "../styles/Home.module.css";
 
+
+
 export default function Home() {
   // walletConnected keep track of whether the user's wallet is connected or not
   const [walletConnected, setWalletConnected] = useState(false);
@@ -20,6 +22,16 @@ export default function Home() {
   const [tokenIdsMinted, setTokenIdsMinted] = useState("0");
   // Create a reference to the Web3 Modal (used for connecting to Metamask) which persists as long as the page is open
   const web3ModalRef = useRef();
+
+  const [nftContract, setNFTContract] = useState();
+  const [nftTokenId, setNFTTokenId] = useState(0);
+  const [nftTokenURI, setNFTTokenURI] = useState("");
+  const [nftRecipient, setNFTRecipient] = useState("");
+  const [burnAddress, setBurnAddress] = useState("");
+
+
+  
+ 
 
   /**
    * presaleMint: Mint an NFT during the presale
@@ -59,13 +71,13 @@ export default function Home() {
       const signer = await getProviderOrSigner(true);
       // Create a new instance of the Contract with a Signer, which allows
       // update methods
-      console.warn(abi.abi)
+     // console.warn(abi.abi)
       const nftContract = new Contract(NFT_CONTRACT_ADDRESS, abi.abi, signer);
       // call the mint from the contract to mint the Crypto Dev
       const tx = await nftContract.mint({
         // value signifies the cost of one crypto dev which is "0.01" eth.
         // We are parsing `0.01` string to ether using the utils library from ethers.js
-        value: utils.parseEther("0.01"),
+        value: utils.parseEther("0.0000000001"),
       });
       setLoading(true);
       // wait for the transaction to get mined
@@ -76,6 +88,33 @@ export default function Home() {
       console.error(err);
     }
   };
+
+
+  const publicBurn = async () => {
+    try {
+      // We need a Signer here since this is a 'write' transaction.
+      const signer = await getProviderOrSigner(true);
+      // Create a new instance of the Contract with a Signer, which allows
+      // update methods
+     // console.warn(abi.abi)
+      const nftContract = new Contract(NFT_CONTRACT_ADDRESS, abi.abi, signer);
+      // call the mint from the contract to mint the Crypto Devx
+      console.log("entered nft token id is"+ nftTokenId )
+            
+      //const tx2 = await nftContract.approve( NFT_CONTRACT_ADDRESS,nftTokenId );
+
+      const tx = await nftContract.burn(nftTokenId);
+      setLoading(true);
+      // wait for the transaction to get mined
+      await tx.wait();
+      setLoading(false);
+      window.alert("You successfully minted a Crypto Dev!");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
 
   /*
       connectWallet: Connects the MetaMask wallet
@@ -195,6 +234,28 @@ export default function Home() {
     }
   };
 
+  const handleBurnClick = async () => {
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const userAddress = accounts[0];
+
+    try {
+      const receipt = await nftContract.methods.burn(NFTTokenId).send({  });
+      console.log('NFT burned successfully', receipt);
+    } catch (error) {
+      console.error('Error burning NFT:', error);
+    }
+  };
+  
+ // handle NFT burning
+  // async function burnNFT() {
+  //   try {
+  //     const transaction = await nftContract.burnNFT(nftTokenId, burnAddress);
+  //     await transaction.wait();
+  //     console.log("NFT burned successfully");
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }
   /**
    * getTokenIdsMinted: gets the number of tokenIds that have been minted
    */
@@ -342,9 +403,38 @@ export default function Home() {
     // If presale started and has ended, its time for public minting
     if (presaleStarted && presaleEnded) {
       return (
+        <>
+        
         <button className={styles.button} onClick={publicMint}>
           Public Mint 🚀
-        </button>
+          </button>
+          
+          {/* <h1>Burn an NFT</h1>
+      <label>NFT ID:</label>
+      <input type="text" onChange={(e) => setNFTTokenId(e.target.value)} />
+      <br />
+      <label>Burn address:</label>
+      <input type="text" onChange={(e) => setBurnAddress(e.target.value)} />
+      <br />
+      <button className={styles.button} onClick={burnNFT}>Burn NFT</button> */}
+          <div>
+            <h1>
+              <br></br>
+              Burn Token!
+              <br></br>
+              <br></br>
+            </h1>
+          
+            <div>
+              <input placeholder="Enter Token ID" className={ styles.button } type="text"  onChange={ ( e ) => setNFTTokenId( e.target.value ) }   />
+              &nbsp;
+               <button className={styles.button} onClick={publicBurn}>Burn NFT</button>
+            </div>
+         
+        </div>
+        </>
+
+        
       );
     }
   };
